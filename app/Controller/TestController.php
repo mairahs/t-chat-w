@@ -4,15 +4,15 @@ namespace Controller;
 
 //use \W\Controller\Controller;
 
-class DefaultController extends BaseController
+class TestController extends BaseController
 {
 
 	/**
 	 * Page d'accueil par défaut
 	 */
-	public function home()
+	public function monAction()
 	{
-		$this->show('default/home');
+		$this->show('test/index');
 	}
 
 }
