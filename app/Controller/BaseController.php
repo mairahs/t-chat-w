@@ -23,7 +23,7 @@ class BaseController extends Controller
 		$this ->engine = new \League\Plates\Engine(self::PATH_VIEWS);// donc la on fait dans le constructeur de ma nouvelle classe ce qu on faisait dans le controleur avant
 
 		//charge nos extensions (nos fonctions personnalisées)
-		$this->$engine->loadExtension(new \W\View\Plates\PlatesExtensions());
+		$this->engine->loadExtension(new \W\View\Plates\PlatesExtensions());
 
 		$app = getApp();
 
@@ -31,12 +31,12 @@ class BaseController extends Controller
 		// accessible avec $w_user & $w_current_route dans les fichiers de vue
 
 		$salonsModel = new SalonsModel();
-		$this->$engine->addData(
+		$this->engine->addData(
 			[
 				'w_user' 		  => $this->getUser(),
 				'w_current_route' => $app->getCurrentRoute(),
 				'w_site_name'	  => $app->getConfig('site_name'),
-				'salons'		  => $salonsModel->findAll(); // dans notre contructeur BC on instancie un nouveau modele et on s'en sert pour assigner tous nos nouveaux salons apres avoir mis en global le engine on lui rajoute la liste des salons avec les datas et enfin on s en sert dans notre nouvelle méthode show qui sera affichée en globale
+				'salons'		  => $salonsModel->findAll() // dans notre contructeur BC on instancie un nouveau modele et on s'en sert pour assigner tous nos nouveaux salons apres avoir mis en global le engine on lui rajoute la liste des salons avec les datas et enfin on s en sert dans notre nouvelle méthode show qui sera affichée en globale
 			]
 		);
 	}
@@ -47,7 +47,7 @@ class BaseController extends Controller
 		$file = str_replace('.php', '', $file);
 
 		// Affiche le template
-		echo $this->$engine->render($file, $data);
+		echo $this->engine->render($file, $data);
 		die();
 
 	}
