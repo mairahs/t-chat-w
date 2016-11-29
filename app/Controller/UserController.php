@@ -36,16 +36,21 @@ class UserController extends BaseController
 
 			if(empty($_POST['pseudo'])){
 				 //erreur pseudo
+				$this->getFlashMessenger()->error('Veuillez renseigner un pseudo');
 			}
 
 			if(empty($_POST['mot_de_passe'])){
 
 				//erreur mot de passe
+				$this->getFlashMessenger()->error('Veuillez renseigner un mot de passe');
 			}
+			
 
 			$auth = new AuthentificationModel();
 
-			if(!empty($_POST['pseudo']) && !empty($_POST['mot_de_passe'])){
+			if( !$this ->getFlashMessenger() ->hasErrors()){
+
+			//if(!empty($_POST['pseudo']) && !empty($_POST['mot_de_passe'])){
 
 				//vérification de l'existence de l'utilisateur en BDD si il le trouve il me renvoit son id sinon il me renvoit 0
 
@@ -67,6 +72,8 @@ class UserController extends BaseController
 				}else{
 
 					// les infos de connexion sont incorrectes on a trouvé aucun id en bdd qui coorespond à la combinaison pseudo / mot de passe
+
+					$this->getFlashMessenger()->error('Vos informations de connexion sont incorrectes');
 				}
 
 			}
@@ -74,7 +81,7 @@ class UserController extends BaseController
 		}
 
 		
-		$this->show('users/login', array('datas' => isset($_POST) ? $_POST : array())); // ser à remplir la value du form pour que l'utilisateur n'ait pas à remplir toutes les données en cas d'erreur on injecte donc dans la vue les données sous la forme $datas et la condition ternaire c'est parce que, comme on est en dehors du if on veut être sur que $_POST existe bien à ce niveau là
+		$this->show('users/login', array('datas' => isset($_POST) ? $_POST : array())); // sert à remplir la value du form pour que l'utilisateur n'ait pas à remplir toutes les données en cas d'erreur on injecte donc dans la vue les données sous la forme $datas et la condition ternaire c'est parce que, comme on est en dehors du if on veut être sur que $_POST existe bien à ce niveau là
 	}
 
 	public function logout(){
@@ -82,6 +89,11 @@ class UserController extends BaseController
 		$auth = new AuthentificationModel();
 		$auth->logUserOut();
 		$this->redirectToRoute('login');
+	}
+
+	public function register(){
+
+		$this->show('users/register');
 	}
 
 }
