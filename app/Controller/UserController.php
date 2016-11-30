@@ -22,6 +22,8 @@ class UserController extends BaseController
 
 		//Ici j'instancie depuis l action du controleur un modele d utilisateur pour pouvoiur accéder à la liste des utilisateurs
 
+		$this->allowTo(['admin','superadmin']);
+
 		$usersModel = new UtilisateursModel();
 		$usersList = $usersModel ->findAll();
 
@@ -107,7 +109,7 @@ class UserController extends BaseController
 
 				'mot_de_passe'=>v::length(3,50)->alnum()->noWhiteSpace()->setName('Mot de passe'),
 
-				'avatar'=>v::optional(v::image()->size('1MB')->uploaded()),
+				'avatar'=>v::optional(v::image()->size('0','1MB')->uploaded()),
 
 				'sexe'=>v::in(['femme','homme','non-défini']),
 				);

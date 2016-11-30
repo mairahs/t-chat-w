@@ -20,7 +20,7 @@
 
 		<h2 class='inscription'>Inscription d'un utilisateur</h2>
 
-			<?php $fmsg ->display(); ?>
+		
 
 					<form action='<?php echo $this->url('register'); ?>' method='POST' enctype = "multipart/form-data" class="inscription">
 						

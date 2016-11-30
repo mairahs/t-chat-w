@@ -6,7 +6,6 @@ $this-> start('main_content'); ?>
 	<h2>Connectez-vous à  T'Chat</h2>
 
 				<?php $fmsg->display(); ?>
-
 				<form action="<?php echo $this->url('login') ?>" method="POST">
 
 					<p>
@@ -24,7 +23,7 @@ $this-> start('main_content'); ?>
 
 					<p>
 						<input type="submit" value="Connectez-vous!" class="button">
-						<a href="<?php echo $this->url('register'); ?>" title="accédez à  la page d'inscription">Pas encore inscrit ?</a>
+						<a href="<?php echo $this->url('register'); ?>" title="accédez à  la page d'inscription" style="color:#65547F;">Pas encore inscrit ?</a>
 					</p>
 
 					
