@@ -24,7 +24,7 @@ $this-> start('main_content'); ?>
 
 					<p>
 						<input type="submit" value="Connectez-vous!" class="button">
-						<a href="#" title="accédez à  la page d'inscription">Pas encore inscrit ?</a>
+						<a href="<?php echo $this->url('register'); ?>" title="accédez à  la page d'inscription">Pas encore inscrit ?</a>
 					</p>
 
 					

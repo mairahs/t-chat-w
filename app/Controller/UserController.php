@@ -5,6 +5,8 @@ namespace Controller;
 //use \W\Controller\Controller;
 use Model\UtilisateursModel;
 use W\Security\AuthentificationModel;
+use Respect\Validation\Validator as v;
+use Respect\Validation\Exceptions\NestedValidationException;
 
 class UserController extends BaseController
 {
@@ -92,6 +94,113 @@ class UserController extends BaseController
 	}
 
 	public function register(){
+
+		if(!empty($_POST)){
+
+			v::with("Validation\Rules"); // on informe Respect/Validation qu'on a fait des validateurs personnalisés pour qu il les récupère en indiquant son namespace
+
+			$validators = array(
+
+				'pseudo'=>v::length(3,50)->alnum()->noWhiteSpace()->usernameNotExists()->setName('Nom d\'utilisateur'),
+
+				'email'=>v::emailNotExists()->setName('Email'),
+
+				'mot_de_passe'=>v::length(3,50)->alnum()->noWhiteSpace()->setName('Mot de passe'),
+
+				'avatar'=>v::optional(v::image()->size('1MB')->uploaded()),
+
+				'sexe'=>v::in(['femme','homme','non-défini']),
+				);
+
+			$datas = $_POST;
+
+			//on a une erreur à cause de l'avatar c normal car l'avatar ne fais pas partie de $_POST mais plutot de $_FILE. Donc on rajoute le chemin vers le fichier d'avatar qui a été uploadé si il existe. Si il existe il est tout d'abord stocké dans un répertoire temporaire tmp
+
+			if(!empty($_FILES['avatar']['tmp_name'])){
+
+				//Je stocke en données à valider le chemin vers la localisatiopn temporaire de l'avatar
+				$datas['avatar'] = $_FILES['avatar']['tmp_name'];
+			}else{
+
+				//sinon je laisse le champ vide
+				$datas['avatar'] = //realpath('avatars/default.png');
+				'';
+			}
+
+
+			//je parcours la liste de mes validateurs en récupérant aussi le nom du champ en clé
+			foreach($validators as $field =>$validator){
+
+				// la méthode assert() renvoit une exception de type NestedValidationExcetion qui nous permet de récupérer le ou les messages d'erreur en cas d'erreur. 
+				try{
+
+					//on essaie de valider la donnée
+					// si une exception se produit, c'est le blioc catch qui sera exécuté
+					$validator->assert(isset($datas[$field]) ? $datas[$field] : '');
+
+				} catch (NestedValidationException $ex) {
+
+					$fullMessage = $ex->getFullMessage();
+					$this->getFlashMessenger()->error($fullMessage);// ici on fait cohabiter nos 2 librairies
+				}
+				
+
+			}
+
+			if( ! $this->getFlashMessenger()->hasErrors()){
+
+				//si on a pas rencontré d'erreurs on procède à l'insertion du nouvel utilisateur
+				// mais avant de faire l'insertion on a 2 choses à faire: déplacer l'avatar du fichier temporaire vers une localisation permanente(dossier avatars) et on doit aussi hasher le password
+
+				//hasage du mot de passe pour celà on utilise le model consacré AuthentificationModel() pour rester cohérent avec le framework
+				$auth = new AuthentificationModel();
+				$datas['mot_de_passe'] = $auth->hashPassword($datas['mot_de_passe']);
+
+				if(!empty($_FILES['avatar']['tmp_name'])){
+
+						//on déplace l'avatar vers le dossier avatars
+
+						$initialAvatarPath = $_FILES['avatar']['tmp_name'];
+
+						$avatarNewName = md5(time(). uniqid());
+
+						$targetPath = realpath('assets/uploads/'); //realpath() fonction php a qui, lorsqu on donne le chemin relatif comme assets/ upload et  il reconstitue le chemin complet jusqu'au C
+
+						move_uploaded_file($initialAvatarPath, $targetPath.'/'.$avatarNewName); // fonction PHP pour déplacer l'avatar 
+
+						//on met à jour le nouveau nom de l'avatar dans $datas qui est celui qui est dans la localisation permanente il sera donc stocké sous ce nom final en BDD
+
+						$datas['avatar'] = $avatarNewName;
+
+				}else{
+
+					$datas['avatar'] = 'default.png';
+				}
+
+				
+
+				//insertion de l'utilisateur dans la BDD
+
+				$utilisateursModel = new UtilisateursModel();
+
+				unset($datas['send']);
+
+				$userInfos = $utilisateursModel->insert($datas); // renvoit toutes les infos de l'utilisateur qu on insère en BDD y compris son id
+
+				$auth->logUserIn($userInfos);//on connecte l'utilisateur
+
+				$this->getFlashMessenger()->success("Votre inscription à T'Chat a bien été prise en compte");
+
+				
+				
+
+				$this->redirectToRoute('default_home');
+
+
+
+
+			}
+		}
 
 		$this->show('users/register');
 	}
